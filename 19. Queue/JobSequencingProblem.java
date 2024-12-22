@@ -1,0 +1,71 @@
+import java.util.*;
+
+public class JobSequencingProblem {
+    static class Job {
+        char job_id;
+        int deadline;
+        int profit;
+
+        Job(char job_id, int deadline, int profit) {
+            this.deadline = deadline;
+            this.job_id = job_id;
+            this.profit = profit;
+        }
+    }
+
+    static void printJobSequencing(ArrayList<Job> arr) {
+        int n = arr.size();
+
+        // Sorting by deadlines in ascending order
+        Collections.sort(arr, (a, b) -> a.deadline - b.deadline);
+
+        // Priority queue to act as a max heap, based on profit (highest profit first)
+        PriorityQueue<Job> maxHeap = new PriorityQueue<>((a, b) -> b.profit - a.profit);
+
+        // List to store the result sequence of jobs
+        List<Job> result = new ArrayList<>();
+
+        // Iterate over jobs starting from the one with the largest deadline
+        for (int i = n - 1; i > -1; i--) {
+            int slot_available;
+
+            // Calculate the number of available slots between two jobs
+            if (i == 0) {
+                slot_available = arr.get(i).deadline;
+            } else {
+                slot_available = arr.get(i).deadline - arr.get(i - 1).deadline;
+            }
+
+            // Add the job to the maxHeap
+            maxHeap.add(arr.get(i));
+
+            // While there are available slots and jobs in the heap, assign jobs
+            while (slot_available > 0 && maxHeap.size() > 0) {
+                Job job = maxHeap.remove();
+                slot_available--;
+                result.add(job);
+            }
+        }
+
+        // Sort the result jobs by deadline for the output sequence
+        Collections.sort(result, (a, b) -> a.deadline - b.deadline);
+
+        // Print the result job sequence
+        for (Job job : result) {
+            System.out.print(job.job_id + " ");
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        ArrayList<Job> arr = new ArrayList<Job>();
+        arr.add(new Job('a', 2, 100));
+        arr.add(new Job('b', 1, 19));
+        arr.add(new Job('c', 2, 27));
+        arr.add(new Job('d', 1, 25));
+        arr.add(new Job('e', 3, 15));
+
+        System.out.println("Following is Maximum Profit Sequence of Jobs: ");
+        printJobSequencing(arr);
+    }
+}
